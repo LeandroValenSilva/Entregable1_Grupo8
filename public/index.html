@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Usuarios y Mascotas</title>
+  <style>
+    :root {
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --text: #1d2433;
+      --muted: #667085;
+      --border: #dfe3ea;
+      --primary: #2563eb;
+      --primary-text: #ffffff;
+      --danger: #dc2626;
+      --success: #16a34a;
+      --chip: #eef2ff;
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(16, 24, 40, .08), 0 1px 2px rgba(16, 24, 40, .04);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0b1120;
+        --card: #131c2e;
+        --text: #e5e9f0;
+        --muted: #94a3b8;
+        --border: #26324a;
+        --primary: #3b82f6;
+        --chip: #1e2a44;
+        --code-bg: #050a16;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px;
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+    header .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 0; }
+    h1 { font-size: 1.35rem; margin: 0; }
+    h1 small { display: block; font-size: .8rem; font-weight: 400; color: var(--muted); }
+    .tabs { display: flex; gap: 6px; background: var(--bg); padding: 4px; border-radius: 10px; }
+    .tab {
+      border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 600;
+      padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    }
+    .tab[aria-selected="true"] { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
+    main { padding: 20px 0 40px; }
+    .layout { display: grid; grid-template-columns: 360px 1fr; gap: 20px; align-items: start; }
+    @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 18px;
+    }
+    .form-card { position: sticky; top: 16px; }
+    @media (max-width: 860px) { .form-card { position: static; } }
+    .card h2 { font-size: 1.05rem; margin: 0 0 14px; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 10px 0 4px; }
+    .hint { font-weight: 400; color: var(--muted); font-size: .78rem; }
+    input[type="text"], input[type="password"], input[type="number"], select {
+      width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); color: var(--text); font: inherit;
+    }
+    input[type="file"] { width: 100%; font-size: .85rem; color: var(--muted); }
+    input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .check { display: flex; align-items: center; gap: 8px; font-weight: 400; font-size: .85rem; margin-top: 10px; }
+    .actions { display: flex; gap: 8px; margin-top: 16px; }
+    button.btn {
+      border: 1px solid var(--border); background: var(--card); color: var(--text); font: inherit; font-weight: 600;
+      padding: 9px 14px; border-radius: 8px; cursor: pointer;
+    }
+    button.btn:hover { filter: brightness(.97); }
+    button.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--primary-text); flex: 1; }
+    button.btn.danger { color: var(--danger); }
+    button.btn.small { padding: 5px 10px; font-size: .82rem; }
+    button:disabled { opacity: .6; cursor: progress; }
+    .previews { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .previews img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+    .current-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px; margin-top: 6px; }
+    .current-imgs label { margin: 0; font-weight: 400; font-size: .75rem; text-align: center; cursor: pointer; }
+    .current-imgs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 2px solid transparent; display: block; }
+    .current-imgs input:checked + img { border-color: var(--danger); opacity: .45; }
+    .current-imgs input { display: none; }
+    .list-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; }
+    .list-head h2 { margin: 0; font-size: 1.05rem; }
+    .count { color: var(--muted); font-weight: 400; font-size: .9rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+    .item { padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+    .item .body { padding: 14px; flex: 1; }
+    .item .foot { display: flex; gap: 8px; padding: 0 14px 14px; }
+    .item .foot .btn { flex: 1; }
+    .user-head { display: flex; gap: 12px; align-items: center; }
+    .avatar {
+      width: 64px; height: 64px; border-radius: 50%; object-fit: cover; flex-shrink: 0;
+      background: var(--chip); display: grid; place-items: center; font-weight: 700; color: var(--primary); font-size: 1.2rem;
+      border: 1px solid var(--border);
+    }
+    .name { font-weight: 700; }
+    .muted { color: var(--muted); font-size: .85rem; overflow-wrap: anywhere; }
+    .id { font-size: .75rem; color: var(--muted); }
+    .pet-main { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: var(--chip); }
+    .pet-empty { width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center; background: var(--chip); color: var(--muted); font-size: .85rem; }
+    .thumbs { display: flex; gap: 6px; padding: 8px 14px 0; flex-wrap: wrap; }
+    .thumbs img { width: 40px; height: 40px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid transparent; }
+    .thumbs img.active { border-color: var(--primary); }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .chip { background: var(--chip); border-radius: 999px; padding: 2px 10px; font-size: .78rem; }
+    .empty { text-align: center; color: var(--muted); padding: 40px 16px; border: 1px dashed var(--border); border-radius: var(--radius); }
+    details.log { margin-top: 20px; }
+    details.log summary { cursor: pointer; font-weight: 600; }
+    .log pre {
+      background: var(--code-bg); color: var(--code-text); padding: 12px; border-radius: 8px;
+      font-size: .8rem; overflow: auto; max-height: 300px; margin: 10px 0 0; white-space: pre-wrap; word-break: break-word;
+    }
+    .badge { display: inline-block; padding: 1px 8px; border-radius: 6px; font-weight: 700; font-size: .8rem; color: #fff; }
+    .badge.ok { background: var(--success); }
+    .badge.err { background: var(--danger); }
+    #toast {
+      position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%) translateY(calc(100% + 40px));
+      background: var(--text); color: var(--card); padding: 10px 16px; border-radius: 10px; max-width: calc(100% - 32px);
+      box-shadow: 0 8px 24px rgba(0,0,0,.2); transition: transform .25s, visibility .25s; z-index: 10; font-size: .9rem;
+      visibility: hidden;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); visibility: visible; }
+    #toast.error { background: var(--danger); color: #fff; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Usuarios y Mascotas <small>Cliente web que consume la API REST (/api/users y /api/pets)</small></h1>
+      <nav class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="users" aria-selected="true">Usuarios</button>
+        <button class="tab" role="tab" data-tab="pets" aria-selected="false">Mascotas</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ================= USUARIOS ================= -->
+    <section id="panel-users" class="layout">
+      <form id="user-form" class="card form-card" novalidate>
+        <h2><span id="user-form-title">Nuevo usuario</span></h2>
+        <div class="row">
+          <div>
+            <label for="u-firstname">Nombre</label>
+            <input type="text" id="u-firstname" name="firstname" required />
+          </div>
+          <div>
+            <label for="u-lastname">Apellido</label>
+            <input type="text" id="u-lastname" name="lastname" required />
+          </div>
+        </div>
+        <label for="u-username">Username</label>
+        <input type="text" id="u-username" name="username" autocomplete="off" required />
+        <label for="u-password">Contraseña <span class="hint" id="u-password-hint">(mínimo 4 caracteres)</span></label>
+        <input type="password" id="u-password" name="password" autocomplete="new-password" />
+        <label for="u-avatar">Avatar <span class="hint">(opcional, máx. 5 MB)</span></label>
+        <input type="file" id="u-avatar" name="avatar" accept="image/png,image/jpeg,image/gif,image/webp,image/avif" />
+        <div class="previews" id="u-preview"></div>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="user-submit">Crear usuario</button>
+          <button type="button" class="btn" id="user-cancel" hidden>Cancelar</button>
+        </div>
+      </form>
+
+      <div>
+        <div class="list-head">
+          <h2>Usuarios <span class="count" id="users-count"></span></h2>
+          <button class="btn small" id="users-reload" type="button">Recargar</button>
+        </div>
+        <div class="grid" id="users-list"></div>
+      </div>
+    </section>
+
+    <!-- ================= MASCOTAS ================= -->
+    <section id="panel-pets" class="layout" hidden>
+      <form id="pet-form" class="card form-card" novalidate>
+        <h2><span id="pet-form-title">Nueva mascota</span></h2>
+        <div class="row">
+          <div>
+            <label for="p-especie">Especie</label>
+            <input type="text" id="p-especie" name="especie" placeholder="perro, gato..." required />
+          </div>
+          <div>
+            <label for="p-edad">Edad (años)</label>
+            <input type="number" id="p-edad" name="edad" min="0" step="1" required />
+          </div>
+        </div>
+        <label for="p-color">Color</label>
+        <input type="text" id="p-color" name="color" required />
+        <label for="p-sexo">Sexo</label>
+        <select id="p-sexo" name="sexo" required>
+          <option value="">Seleccione...</option>
+          <option value="macho">Macho</option>
+          <option value="hembra">Hembra</option>
+        </select>
+
+        <div id="p-current-wrap" hidden>
+          <label>Imágenes actuales <span class="hint">(clic para marcar y quitar)</span></label>
+          <div class="current-imgs" id="p-current"></div>
+          <label class="check"><input type="checkbox" id="p-replace" /> Reemplazar todas por las nuevas</label>
+        </div>
+
+        <label for="p-img"><span id="p-img-label">Imágenes</span> <span class="hint">(hasta 5 en total, máx. 5 MB c/u)</span></label>
+        <input type="file" id="p-img" name="img" multiple accept="image/png,image/jpeg,image/gif,image/webp,image/avif" />
+        <div class="previews" id="p-preview"></div>
+        <div class="actions">
+          <button type="submit" class="btn primary" id="pet-submit">Crear mascota</button>
+          <button type="button" class="btn" id="pet-cancel" hidden>Cancelar</button>
+        </div>
+      </form>
+
+      <div>
+        <div class="list-head">
+          <h2>Mascotas <span class="count" id="pets-count"></span></h2>
+          <button class="btn small" id="pets-reload" type="button">Recargar</button>
+        </div>
+        <div class="grid" id="pets-list"></div>
+      </div>
+    </section>
+
+    <details class="log card" id="log">
+      <summary>Última petición a la API</summary>
+      <div id="log-line" class="muted" style="margin-top:8px">Aún no se ha hecho ninguna petición.</div>
+      <pre id="log-body" hidden></pre>
+    </details>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    // ---------- utilidades ----------
+    const $ = (sel) => document.querySelector(sel);
+
+    // Crea elementos con textContent (evita inyectar HTML con datos del usuario)
+    function el(tag, props = {}, ...children) {
+      const node = document.createElement(tag);
+      for (const [key, value] of Object.entries(props)) {
+        if (key === 'class') node.className = value;
+        else if (key.startsWith('on')) node.addEventListener(key.slice(2), value);
+        else if (key in node) node[key] = value;
+        else node.setAttribute(key, value);
+      }
+      for (const child of children.flat()) {
+        if (child !== null && child !== undefined && child !== false) node.append(child);
+      }
+      return node;
+    }
+
+    let toastTimer;
+    function toast(message, isError = false) {
+      const t = $('#toast');
+      t.textContent = message;
+      t.classList.toggle('error', isError);
+      t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+    }
+
+    // Llama a la API, registra la petición en el panel y lanza error si el status no es 2xx
+    async function api(method, url, body) {
+      const res = await fetch(url, { method, body });
+      const data = await res.json().catch(() => null);
+
+      $('#log-line').replaceChildren(
+        el('span', { class: `badge ${res.ok ? 'ok' : 'err'}` }, String(res.status)),
+        ` ${method} ${url}`
+      );
+      $('#log-body').hidden = false;
+      $('#log-body').textContent = JSON.stringify(data, null, 2);
+
+      if (!res.ok) throw new Error(data?.error || `Error ${res.status}`);
+      return data;
+    }
+
+    function showPreviews(input, container) {
+      container.replaceChildren(
+        ...[...input.files].map((file) => el('img', { src: URL.createObjectURL(file), alt: file.name, title: file.name }))
+      );
+    }
+
+    // Quita del FormData los campos vacíos y los archivos no seleccionados
+    function cleanFormData(fd) {
+      const clean = new FormData();
+      for (const [key, value] of fd.entries()) {
+        if (value instanceof File) {
+          if (value.size > 0) clean.append(key, value);
+        } else if (String(value).trim() !== '') {
+          clean.append(key, value);
+        }
+      }
+      return clean;
+    }
+
+    async function withBusy(button, fn) {
+      button.disabled = true;
+      try { await fn(); } finally { button.disabled = false; }
+    }
+
+    // ---------- pestañas ----------
+    document.querySelectorAll('.tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+        $('#panel-users').hidden = tab.dataset.tab !== 'users';
+        $('#panel-pets').hidden = tab.dataset.tab !== 'pets';
+        try { localStorage.setItem('tab', tab.dataset.tab); } catch {}
+      });
+    });
+
+    // =====================================================
+    // USUARIOS
+    // =====================================================
+    const userForm = $('#user-form');
+    let editingUserId = null;
+
+    function resetUserForm() {
+      editingUserId = null;
+      userForm.reset();
+      $('#u-preview').replaceChildren();
+      $('#user-form-title').textContent = 'Nuevo usuario';
+      $('#user-submit').textContent = 'Crear usuario';
+      $('#u-password-hint').textContent = '(mínimo 4 caracteres)';
+      $('#user-cancel').hidden = true;
+    }
+
+    function startEditUser(user) {
+      editingUserId = user.id;
+      userForm.reset();
+      $('#u-firstname').value = user.firstname;
+      $('#u-lastname').value = user.lastname;
+      $('#u-username').value = user.username;
+      $('#u-preview').replaceChildren(...(user.avatar ? [el('img', { src: user.avatar, alt: 'avatar actual' })] : []));
+      $('#user-form-title').textContent = `Editar usuario #${user.id}`;
+      $('#user-submit').textContent = 'Guardar cambios';
+      $('#u-password-hint').textContent = '(déjala vacía para no cambiarla)';
+      $('#user-cancel').hidden = false;
+      $('#u-firstname').focus();
+      userForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function userCard(user) {
+      const initials = `${user.firstname?.[0] ?? ''}${user.lastname?.[0] ?? ''}`.toUpperCase();
+      const avatar = user.avatar
+        ? el('img', { class: 'avatar', src: user.avatar, alt: `Avatar de ${user.username}` })
+        : el('div', { class: 'avatar' }, initials || '?');
+
+      return el('article', { class: 'card item' },
+        el('div', { class: 'body' },
+          el('div', { class: 'user-head' },
+            avatar,
+            el('div', {},
+              el('div', { class: 'id' }, `#${user.id}`),
+              el('div', { class: 'name' }, `${user.firstname} ${user.lastname}`),
+              el('div', { class: 'muted' }, `@${user.username}`)
+            )
+          ),
+          user.avatar ? el('div', { class: 'muted', style: 'margin-top:10px;font-size:.75rem' }, user.avatar) : null
+        ),
+        el('div', { class: 'foot' },
+          el('button', { class: 'btn small', type: 'button', onclick: () => startEditUser(user) }, 'Editar'),
+          el('button', { class: 'btn small danger', type: 'button', onclick: () => deleteUser(user) }, 'Eliminar')
+        )
+      );
+    }
+
+    async function loadUsers() {
+      try {
+        const users = await api('GET', '/api/users');
+        $('#users-count').textContent = `(${users.length})`;
+        $('#users-list').replaceChildren(
+          ...(users.length ? users.map(userCard) : [el('div', { class: 'empty' }, 'No hay usuarios registrados. Crea el primero con el formulario.')])
+        );
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    async function deleteUser(user) {
+      if (!confirm(`¿Eliminar al usuario @${user.username}?`)) return;
+      try {
+        await api('DELETE', `/api/users/${user.id}`);
+        toast('Usuario eliminado');
+        if (editingUserId === user.id) resetUserForm();
+        loadUsers();
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    userForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      withBusy($('#user-submit'), async () => {
+        try {
+          const fd = cleanFormData(new FormData(userForm));
+          if (editingUserId) {
+            await api('PUT', `/api/users/${editingUserId}`, fd);
+            toast('Usuario actualizado');
+          } else {
+            await api('POST', '/api/users', fd);
+            toast('Usuario creado');
+          }
+          resetUserForm();
+          loadUsers();
+        } catch (err) {
+          toast(err.message, true);
+        }
+      });
+    });
+
+    $('#u-avatar').addEventListener('change', (e) => showPreviews(e.target, $('#u-preview')));
+    $('#user-cancel').addEventListener('click', resetUserForm);
+    $('#users-reload').addEventListener('click', loadUsers);
+
+    // =====================================================
+    // MASCOTAS
+    // =====================================================
+    const petForm = $('#pet-form');
+    let editingPetId = null;
+
+    function resetPetForm() {
+      editingPetId = null;
+      petForm.reset();
+      $('#p-preview').replaceChildren();
+      $('#p-current').replaceChildren();
+      $('#p-current-wrap').hidden = true;
+      $('#pet-form-title').textContent = 'Nueva mascota';
+      $('#pet-submit').textContent = 'Crear mascota';
+      $('#p-img-label').textContent = 'Imágenes';
+      $('#pet-cancel').hidden = true;
+    }
+
+    function startEditPet(pet) {
+      editingPetId = pet.id;
+      petForm.reset();
+      $('#p-preview').replaceChildren();
+      $('#p-especie').value = pet.especie;
+      $('#p-color').value = pet.color;
+      $('#p-edad').value = pet.edad;
+      $('#p-sexo').value = pet.sexo;
+      $('#p-current').replaceChildren(
+        ...pet.img.map((src) => el('label', { title: 'Marcar para quitar' },
+          el('input', { type: 'checkbox', value: src, class: 'remove-img' }),
+          el('img', { src, alt: 'imagen actual' }),
+          'Quitar'
+        ))
+      );
+      $('#p-current-wrap').hidden = pet.img.length === 0;
+      $('#pet-form-title').textContent = `Editar mascota #${pet.id}`;
+      $('#pet-submit').textContent = 'Guardar cambios';
+      $('#p-img-label').textContent = 'Agregar imágenes';
+      $('#pet-cancel').hidden = false;
+      $('#p-especie').focus();
+      petForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function petCard(pet) {
+      const main = pet.img.length
+        ? el('img', { class: 'pet-main', src: pet.img[0], alt: `${pet.especie} ${pet.color}` })
+        : el('div', { class: 'pet-empty' }, 'Sin imágenes');
+
+      const thumbs = pet.img.length > 1
+        ? el('div', { class: 'thumbs' },
+            pet.img.map((src, i) => el('img', {
+              src, alt: `imagen ${i + 1}`, class: i === 0 ? 'active' : '',
+              onclick: (e) => {
+                main.src = src;
+                e.target.parentElement.querySelectorAll('img').forEach((t) => t.classList.toggle('active', t === e.target));
+              },
+            }))
+          )
+        : null;
+
+      return el('article', { class: 'card item' },
+        main,
+        thumbs,
+        el('div', { class: 'body' },
+          el('div', { class: 'id' }, `#${pet.id}`),
+          el('div', { class: 'name', style: 'text-transform:capitalize' }, pet.especie),
+          el('div', { class: 'muted' }, pet.color),
+          el('div', { class: 'chips' },
+            el('span', { class: 'chip' }, `${pet.edad} ${pet.edad === 1 ? 'año' : 'años'}`),
+            el('span', { class: 'chip', style: 'text-transform:capitalize' }, pet.sexo),
+            el('span', { class: 'chip' }, `${pet.img.length} ${pet.img.length === 1 ? 'imagen' : 'imágenes'}`)
+          )
+        ),
+        el('div', { class: 'foot' },
+          el('button', { class: 'btn small', type: 'button', onclick: () => startEditPet(pet) }, 'Editar'),
+          el('button', { class: 'btn small danger', type: 'button', onclick: () => deletePet(pet) }, 'Eliminar')
+        )
+      );
+    }
+
+    async function loadPets() {
+      try {
+        const pets = await api('GET', '/api/pets');
+        $('#pets-count').textContent = `(${pets.length})`;
+        $('#pets-list').replaceChildren(
+          ...(pets.length ? pets.map(petCard) : [el('div', { class: 'empty' }, 'No hay mascotas registradas. Crea la primera con el formulario.')])
+        );
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    async function deletePet(pet) {
+      if (!confirm(`¿Eliminar la mascota #${pet.id} (${pet.especie})?`)) return;
+      try {
+        await api('DELETE', `/api/pets/${pet.id}`);
+        toast('Mascota eliminada');
+        if (editingPetId === pet.id) resetPetForm();
+        loadPets();
+      } catch (err) {
+        toast(err.message, true);
+      }
+    }
+
+    petForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      withBusy($('#pet-submit'), async () => {
+        try {
+          const fd = cleanFormData(new FormData(petForm));
+          if (editingPetId) {
+            const removeImg = [...document.querySelectorAll('.remove-img:checked')].map((c) => c.value);
+            if (removeImg.length) fd.append('removeImg', JSON.stringify(removeImg));
+            if ($('#p-replace').checked) fd.append('replaceImg', 'true');
+            await api('PUT', `/api/pets/${editingPetId}`, fd);
+            toast('Mascota actualizada');
+          } else {
+            await api('POST', '/api/pets', fd);
+            toast('Mascota creada');
+          }
+          resetPetForm();
+          loadPets();
+        } catch (err) {
+          toast(err.message, true);
+        }
+      });
+    });
+
+    $('#p-img').addEventListener('change', (e) => {
+      if (e.target.files.length > 5) toast('Solo se permiten hasta 5 imágenes', true);
+      showPreviews(e.target, $('#p-preview'));
+    });
+    $('#pet-cancel').addEventListener('click', resetPetForm);
+    $('#pets-reload').addEventListener('click', loadPets);
+
+    // ---------- inicio ----------
+    try {
+      const saved = localStorage.getItem('tab');
+      if (saved) document.querySelector(`.tab[data-tab="${saved}"]`)?.click();
+    } catch {}
+    loadUsers();
+    loadPets();
+  </script>
+</body>
+</html>
