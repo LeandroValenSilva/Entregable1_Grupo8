@@ -1,0 +1,27 @@
+{
+  "name": "api-rest-users-pets",
+  "version": "1.0.0",
+  "description": "API REST con Express, persistencia en archivos JSON (fs.promises), hashing con crypto, subida de imágenes con multer.diskStorage y archivos estáticos.",
+  "main": "src/app.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "test": "node test/smoke.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "express",
+    "multer",
+    "crypto",
+    "fs.promises",
+    "api-rest"
+  ],
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "multer": "^2.0.2"
+  }
+}

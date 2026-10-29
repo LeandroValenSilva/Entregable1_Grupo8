@@ -1,0 +1,11 @@
+node_modules/
+
+# Imágenes subidas por la API (solo se versiona la estructura de carpetas)
+public/img/users/*
+public/img/pets/*
+!public/img/users/.gitkeep
+!public/img/pets/.gitkeep
+
+# Archivos temporales de Word y documento de la especificación
+~$*
+Especificaci*n Entregable 1.docx
